@@ -235,7 +235,7 @@
 			}
 			function drawRoom(room,current){
         transform = makeRoom(room);
-        if(transform.pos.x + transform.scale.x >= 0 && transform.pos.y + transform.scale.y >= 0 && transform.pos.x <= screen.width && transform.pos.y <= screen.height){
+        if(transform.pos.x + transform.scale.x +ctx.lineWidth >= 0 && transform.pos.y + transform.scale.y +ctx.lineWidth >= 0 && transform.pos.x - ctx.lineWidth<= screen.width && transform.pos.y +ctx.lineWidth <= screen.height){
           if(!performanceMode) ctx.strokeRect(transform.pos.x,transform.pos.y,transform.scale.x,transform.scale.y);
           if(current) ctx.fillStyle = 'chocolate'; else ctx.fillStyle = 'sienna';
           ctx.fillRect(transform.pos.x,transform.pos.y,transform.scale.x,transform.scale.y);
