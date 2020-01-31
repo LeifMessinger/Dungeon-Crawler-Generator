@@ -37,7 +37,7 @@
       ctx.strokeStyle = stroke;
 			var dungeon = [];
 			const dungeonSize = performanceMode?50:250;
-      var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01};
+      var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,size:0.05};
       resize();
 			generateDungeon(dungeonSize,.8);
       player.currentRoom = function(){
@@ -51,24 +51,24 @@
         if(room.y < 0 || room.y >= dungeon[0].length) return colliders;
         if(room.x > 0){
           if(!dungeon[room.x-1][room.y]){
-            colliders.left = (roomSize.x*room.x-dungeon.length/2)-.5;
+            colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-this.size);
           }
         }else{
-          colliders.left = (roomSize.x*room.x-dungeon.length/2)-.5;
+          colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-this.size);
         }
         if(room.x < dungeon.length-1){
           if(!dungeon[room.x+1][room.y]){
-            colliders.right = (roomSize.x*room.x-dungeon.length/2)+.5;
+            colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-this.size);
           }
         }else{
-          colliders.right = (roomSize.x*room.x-dungeon.length/2)+.5;
+          colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-this.size);
         }
         if(room.y > 1){
           if(!dungeon[room.x][room.y-1]){
-          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - (roomSize.y*.5);
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-this.size);
         }
         }else{
-          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - (roomSize.y*.5);
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-this.size);
         }
         if(room.y < dungeon[0].length-1){
           if(!dungeon[room.x][room.y+1]){
@@ -219,7 +219,7 @@
 				//console.log(room);
 			}
 			function drawCharacter(character){
-				let size = screenScale/20,
+				let size = screenScale*character.size,
 				pos = makeCharacter({x:character.x,y:character.y},size);//{x:screen.width/2-(size/2)+(camera.x)+player.x,y:screen.height/2-(size/2)+(camera.y)-player.y};
 				ctx.fillStyle = 'red';
 				//ctx.fillRect(pos.x,pos.y,size,size);
