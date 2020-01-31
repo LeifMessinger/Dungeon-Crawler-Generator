@@ -92,7 +92,19 @@
 			  ctx.fillStyle = pattern;
 			  // fill, etc.
 			}*/
-      
+      function testSpeeds(collider, add, initial, speeds){
+        if(collider == null) return speeds[0];
+        if(add){
+          for(s in speeds){
+            if(collider >= initial + speeds[s]) return speeds[s];
+          }
+        }else{
+          for(s in speeds){
+            if(collider <= initial - speeds[s]) return speeds[s];
+          }
+        }
+        return 0;
+      }
       function updateCamera(){
         camera = {x:(-(mousePos.x-(screen.width/2))*mouseWeight)-player.x*screenScale,y:(-(mousePos.y-(screen.height/2))*mouseWeight)+player.y*screenScale};
         //draw();
@@ -127,12 +139,13 @@
 			} else { //The browser does not support Javascript event binding
 			}
       function walk(){
+        let speeds = [player.speed];
         if(player.up || player.down || player.right || player.left){ //Player is moving
           let colliders = player.getColliders()
-          if(player.up) if(colliders.up == null || colliders.up > player.y + player.speed) player.y += player.speed;
-          if(player.down) if(colliders.down == null || colliders.down < player.y - player.speed) player.y -= player.speed;
-          if(player.right) if(colliders.right == null || colliders.right > player.x + player.speed) player.x += player.speed;
-          if(player.left) if(colliders.left == null || colliders.left < player.x - player.speed) player.x -= player.speed;
+          if(player.up) player.y += testSpeeds(colliders.up,true,player.y,speeds);
+          if(player.down) player.y -= testSpeeds(colliders.down,false,player.y,speeds);
+          if(player.right) player.x += testSpeeds(colliders.right,true,player.x,speeds);
+          if(player.left) player.x -= testSpeeds(colliders.left,false,player.x,speeds);
           //if(colliders.left != null || colliders.right != null) console.log("BRUH");
         }else{ //Player does not move
 
