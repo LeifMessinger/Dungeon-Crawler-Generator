@@ -1,0 +1,377 @@
+<html>
+	<head>
+		<link rel="shortcut icon"  href="about:blank">
+		<!--<script src="//code.jquery.com/jquery.js"></script>-->
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>-->
+		<style>
+			* { margin: 0; padding: 0;}
+
+			body, html {
+			height:100%;
+			overflow: hidden;
+			}
+
+			#c {
+				position:absolute;
+				width:100%;
+				height:100%;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="screen" width="400" height="400"></canvas>
+		<!--<yeet id = "yeet">bruh</yeet>-->
+		<br>
+		<script>
+			var screen = document.getElementById('screen');
+			var zoom = .1;//{x:.8,y:.8};//How large a 1x1 room is compared to the screen percent
+      var screenScale = 1; //Math.min(screen.width,screen.height)
+			var roomSize = {x:1,y:0.5625};//Size of a normal room
+      var mousePos = {x:0,y:0};
+      var mouseWeight = .2;
+      var camera = {x:0,y:0};
+			var ctx = screen.getContext("2d");
+			var backgroundColor = "dimgray";
+      var stroke = 'black';
+      ctx.strokeStyle = stroke;
+			var dungeon = [];
+			var dungeonSize = 10;
+      var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01};
+      resize();
+			generateDungeon(dungeonSize,.8);
+      player.currentRoom = function(){
+        return {x:Math.ceil(((this.x/roomSize.x)-.5)+(dungeon.length/2)),
+        y:Math.ceil(((this.y/roomSize.y)-.5)+(dungeon.length/2))};
+      };
+      player.getColliders = function(){
+        let room = this.currentRoom(),
+        colliders = {};
+        if(room.x < 0 || room.x >= dungeon.length) return colliders;
+        if(room.y < 0 || room.y >= dungeon[0].length) return colliders;
+        if(room.x > 0){
+          if(!dungeon[room.x-1][room.y]){
+            colliders.left = (roomSize.x*room.x-dungeon.length/2)-.5;
+          }
+        }else{
+          colliders.left = (roomSize.x*room.x-dungeon.length/2)-.5;
+        }
+        if(room.x < dungeon.length-1){
+          if(!dungeon[room.x+1][room.y]){
+            colliders.right = (roomSize.x*room.x-dungeon.length/2)+.5;
+          }
+        }else{
+          colliders.right = (roomSize.x*room.x-dungeon.length/2)+.5;
+        }
+        if(room.y > 1){
+          if(!dungeon[room.x][room.y-1]){
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - (roomSize.y*.5);
+        }
+        }else{
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - (roomSize.y*.5);
+        }
+        if(room.y < dungeon[0].length-1){
+          if(!dungeon[room.x][room.y+1]){
+            colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + (roomSize.y*.5);
+          }
+        }else{
+          colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + (roomSize.y*.5);
+        }
+        return colliders;
+      };
+      draw();
+			//single room, x and y are pos on map
+			/* How to create pattern for later
+			var img = new Image;
+			img.onload = imageIsReady;
+			img.src = "data: ....."; // full uri here
+
+			function imageIsReady() {
+			  var pattern = ctx.createPattern(img, "repeat");
+			  ctx.fillStyle = pattern;
+			  // fill, etc.
+			}*/
+      
+      function updateCamera(){
+        camera = {x:(-(mousePos.x-(screen.width/2))*mouseWeight)-player.x*(screenScale*roomSize.x),y:(-(mousePos.y-(screen.height/2))*mouseWeight)+player.y*(screenScale*roomSize.y)};
+        //draw();
+      }
+	  function toScreenPos(pos,size){ //pos = position relative to player
+		return {x:screen.width/2-(size/2)+(camera.x)+pos.x,y:screen.height/2-(size/2)+(camera.y)-pos.y};
+	  }
+    function makeCharacter(pos,size){
+				let aspectRatio = screen.width/screen.height,
+          roomWidth = screenScale,
+          roomHeight = screenScale,
+				roomPos = {x:(camera.x + (screen.width/2) - (size/2) + (pos.x*roomWidth)),
+          y:(camera.y + (screen.height/2) - (size/2) - (pos.y*roomHeight))}; //y positive is up
+				return {pos:roomPos,scale:{x:roomWidth,y:roomHeight}}; //Pos, size room
+			}
+			function resize(){//Resize canvas to window size
+				let win = window,
+					doc = document,
+					docElem = doc.documentElement,
+					body = doc.getElementsByTagName('body')[0],
+					x = win.innerWidth || docElem.clientWidth || body.clientWidth,
+					y = win.innerHeight|| docElem.clientHeight|| body.clientHeight;
+				screen.height = y;
+				screen.width = x;
+        screenScale = Math.min(x,y*(1/roomSize.y))*zoom;
+        mouseWeight = .2;
+        ctx.lineWidth = screenScale/100;
+        updateCamera();
+			};
+			if(window.addEventListener) { //change canvas size when resized
+				window.addEventListener('resize',resize, true); //the true is "useCapture"
+			} else { //The browser does not support Javascript event binding
+			}
+      function walk(){
+        if(player.up || player.down || player.right || player.left){ //Player is moving
+          let colliders = player.getColliders()
+          if(player.up) if(colliders.up == null || colliders.up > player.y + player.speed) player.y += player.speed;
+          if(player.down) if(colliders.down == null || colliders.down < player.y - player.speed) player.y -= player.speed;
+          if(player.right) if(colliders.right == null || colliders.right > player.x + player.speed) player.x += player.speed;
+          if(player.left) if(colliders.left == null || colliders.left < player.x - player.speed) player.x -= player.speed;
+          //if(colliders.left != null || colliders.right != null) console.log("BRUH");
+        }else{ //Player does not move
+
+        }
+      }
+			function draw(){
+        walk();
+        updateCamera();
+				ctx.fillStyle = backgroundColor;
+				ctx.fillRect(0,0,screen.width,screen.height);
+				for(r in dungeon){
+					for(c in dungeon[r]){
+						if(dungeon[r][c]) drawRoom(makeRoom({x:r-Math.floor(dungeonSize/2),y:c-Math.floor(dungeonSize/2)}),(r == player.currentRoom().x && c == player.currentRoom().y));
+					}
+				}
+				drawCharacter(player);
+        window.requestAnimationFrame(draw);
+        //drawRoom(makeRoom({x:1,y:0}));
+			}
+			function generateDungeon(size,chance){
+				let recurse = function(x,y,chance){
+					if(x > 0){
+						if(!dungeon[x-1][y]){
+							if(Math.random()<chance){
+								dungeon[x-1][y] = true;
+                chance -= 1/size;
+								recurse(x-1,y,chance);
+							}
+						}
+					}
+					if(x < dungeon.length-1){
+						if(!dungeon[x+1][y]){
+							if(Math.random()<chance){
+								dungeon[x+1][y] = true;
+								chance -= 1/size;
+								recurse(x+1,y,chance);
+							}
+						}
+					}
+					if(y > 1){
+						if(!dungeon[x][y-1]){
+							if(Math.random()<chance){
+								dungeon[x][y-1] = true;
+                chance -= 1/size;
+								recurse(x,y-1,chance);
+							}
+						}
+					}
+					if(y < dungeon[0].length-1){
+						if(!dungeon[x][y+1]){
+							if(Math.random()<chance){
+								dungeon[x][y+1] = true;
+                chance -= 1/size;
+								recurse(x,y+1,chance);
+							}
+						}
+					}
+				}
+				dungeon = [];
+				for(r = 0; r < size; r++){
+					row = [];
+					for(c = 0; c < size; c++){
+						if(r==Math.floor(size/2) && c == Math.floor(size/2)) row.push(true);
+						else row.push(false);
+					}
+					dungeon.push(row);
+				}
+				recurse(Math.floor(size/2),Math.floor(size/2),1.0);
+				/*for(r = 0; r < size; r++){
+					row = [];
+					for(c = 0; c < size; c++){
+						if(r==Math.floor(size/2) && c == Math.floor(size/2)) row.push(true);
+						else row.push(Math.random()<.5?false:true);
+					}
+					dungeon.push(row);
+				}*/
+				/*for(r in dungeon){
+					alert(dungeon[r]);
+				}*/
+			}
+			function drawRoom(room,current){
+				if(current) ctx.fillStyle = 'chocolate'; else ctx.fillStyle = 'sienna';
+        ctx.strokeRect(room.pos.x,room.pos.y,room.scale.x,room.scale.y);
+				ctx.fillRect(room.pos.x,room.pos.y,room.scale.x,room.scale.y);
+				//console.log(room);
+			}
+			function drawCharacter(character){
+				let size = screenScale/20,
+				pos = makeCharacter({x:character.x,y:character.y},size);//{x:screen.width/2-(size/2)+(camera.x)+player.x,y:screen.height/2-(size/2)+(camera.y)-player.y};
+				ctx.fillStyle = 'red';
+				//ctx.fillRect(pos.x,pos.y,size,size);
+				ctx.strokeRect(pos.pos.x,pos.pos.y,size,size);
+				ctx.fillRect(pos.pos.x,pos.pos.y,size,size);
+				
+			}
+			function makeRoom(pos/*{x:1,y:1}*/){
+				let aspectRatio = screen.width/screen.height,
+          roomWidth = roomSize.x*screenScale,
+          roomHeight = roomSize.y*screenScale,
+				roomPos = {x:(camera.x + (screen.width/2) - (roomWidth/2) + (pos.x*roomWidth)),
+          y:(camera.y + (screen.height/2) - (roomHeight/2) - (pos.y*roomHeight))}; //y positive is up
+				return {pos:roomPos,scale:{x:roomWidth,y:roomHeight}}; //Pos, size room
+			}
+			function registerMouseClick(event) {
+				//console.log("clientX: " + event.clientX + " - clientY: " + event.clientY);
+        //console.log(camera);
+				//draw();
+			}
+      function onKeyDown(event) {
+        let keyCode = event.keyCode;
+        switch (keyCode) {
+          case 68: //d
+            player.right = true;
+            break;
+          case 83: //s
+            player.down = true;
+            break;
+          case 65: //a
+            player.left = true;
+            break;
+          case 87: //w
+            player.up = true;
+            break;
+          case 189: //-
+            zoom /= 2;
+            resize();
+            break;
+          case 187: //=
+            zoom *= 2;
+            resize();
+            break;
+        }
+        //console.log(keyCode);
+      }
+      function onKeyUp(event) {
+        let keyCode = event.keyCode;
+        switch (keyCode) {
+          case 68: //d
+            player.right = false;
+            break;
+          case 83: //s
+            player.down = false;
+            break;
+          case 65: //a
+            player.left = false;
+            break;
+          case 87: //w
+            player.up = false;
+            break;
+        }
+      }
+      window.addEventListener("keydown", onKeyDown, false);
+      window.addEventListener("keyup", onKeyUp, false);
+			document.addEventListener("click", registerMouseClick);
+      screen.onmousemove = function(event){
+        mousePos = {x:event.clientX,y:event.clientY};
+        updateCamera();
+      }
+		</script>
+		<!--<script>
+			var socket = io.connect();
+			var screen = document.getElementById('screen');
+			var ctx = screen.getContext("2d");
+			var backgroundColor = "red";
+			var placement = "";
+			var woke = true;
+			function draw(){
+				ctx.fillStyle = backgroundColor;
+				ctx.fillRect(0,0,screen.width,screen.height);
+				let subtitleSize = screen.width/30;
+				ctx.font= subtitleSize+"px Comic Sans MS";
+				ctx.fillStyle = "black";
+				ctx.textAlign = "center";
+				ctx.fillText(placement, screen.width/2,subtitleSize);
+				if(woke){
+					ctx.font= subtitleSize + "px Comic Sans MS";
+					ctx.fillStyle = "black";
+					ctx.textAlign = "center";
+					ctx.fillText("Rock", screen.width/2, screen.height/3 - screen.height/6);
+					ctx.fillText("Paper", screen.width/2, 2*screen.height/3 - screen.height/6);
+					ctx.fillText("Scissors", screen.width/2, screen.height - screen.height/6);
+				}
+			}
+			function resize(){//Resize canvas to window size
+				let win = window,
+					doc = document,
+					docElem = doc.documentElement,
+					body = doc.getElementsByTagName('body')[0],
+					x = win.innerWidth || docElem.clientWidth || body.clientWidth,
+					y = win.innerHeight|| docElem.clientHeight|| body.clientHeight;
+				screen.height = y;
+				screen.width = x;
+				draw();
+			};
+			resize();
+			draw();
+			if(window.addEventListener) { //change canvas size when resized
+				window.addEventListener('resize',resize, true); //the true is "useCapture"
+			} else { //The browser does not support Javascript event binding
+			}
+			socket.on('die', function () {
+				socket.close();
+				console.log('disconnied');
+				backgroundColor = "red";
+				draw();
+			});
+			socket.on('connected', function () {
+				console.log('connied');
+				backgroundColor = "lime";
+				draw();
+			});
+			socket.on('placement', function (data) {
+				console.log(data);
+				placement = data;
+				draw();
+			});
+			/*function printMousePos(event) {
+			  console.log(
+				"clientX: " + event.clientX +
+				" - clientY: " + event.clientY);
+			}*/
+			function registerMouseClick(event) {
+				console.log("clientX: " + event.clientX + " - clientY: " + event.clientY);
+				if(woke){
+					if(event.clientX > screen.width/3 && event.clientX < 2*screen.width/3){
+						if(event.clientY > 0 && event.clientY < screen.height/3){
+							socket.emit('choice','rock');
+						}else{
+							if(event.clientY > screen.height/3 && event.clientY < 2*screen.height/3){
+								socket.emit('choice','paper');
+							}else{
+								if(event.clientY > 2*screen.height/3 && event.clientY < screen.height){
+									socket.emit('choice','scissors');
+								}
+							}
+						}
+					}
+				}
+				draw();
+			}
+			document.addEventListener("click", registerMouseClick);
+		</script>-->
+	</body>
+</html>
