@@ -44,38 +44,39 @@
         return {x:Math.ceil(((this.x/roomSize.x)-.5)+(dungeon.length/2)),
         y:Math.ceil(((this.y/roomSize.y)-.5)+(dungeon.length/2))};
       };
-      player.getColliders = function(){
+      player.getColliders = function(){ 
+        let sizeMultiplier = .4;
         let room = this.currentRoom(),
         colliders = {};
         if(room.x < 0 || room.x >= dungeon.length) return colliders;
         if(room.y < 0 || room.y >= dungeon[0].length) return colliders;
         if(room.x > 0){
           if(!dungeon[room.x-1][room.y]){
-            colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-this.size);
+            colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-(this.size*sizeMultiplier));
           }
         }else{
-          colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-this.size);
+          colliders.left = (roomSize.x*room.x-dungeon.length/2)-(.5-(this.size*sizeMultiplier));
         }
         if(room.x < dungeon.length-1){
           if(!dungeon[room.x+1][room.y]){
-            colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-this.size);
+            colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-(this.size*sizeMultiplier));
           }
         }else{
-          colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-this.size);
+          colliders.right = (roomSize.x*room.x-dungeon.length/2)+(.5-(this.size*sizeMultiplier));
         }
         if(room.y > 1){
           if(!dungeon[room.x][room.y-1]){
-          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-this.size);
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-(this.size*sizeMultiplier));
         }
         }else{
-          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-this.size);
+          colliders.down = (roomSize.y*(room.y-dungeon[0].length/2)) - ((roomSize.y*.5)-(this.size*sizeMultiplier));
         }
         if(room.y < dungeon[0].length-1){
           if(!dungeon[room.x][room.y+1]){
-            colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + (roomSize.y*.5);
+            colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + ((roomSize.y*.5)-(this.size*sizeMultiplier));
           }
         }else{
-          colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + (roomSize.y*.5);
+          colliders.up = (roomSize.y*(room.y-dungeon[0].length/2)) + ((roomSize.y*.5)-(this.size*sizeMultiplier));
         }
         return colliders;
       };
@@ -235,7 +236,7 @@
           y:(camera.y + (screen.height/2) - (roomHeight/2) - (pos.y*roomHeight))}; //y positive is up
         if(performanceMode){
           roomPos.x = Math.round(roomPos.x);
-          roomPos.y = Math.round(roomPos.y); //Canvas Optimisation
+          roomPos.y = Math.round(roomPos.y); //Canvas Optimisation, weirdly enough tends to slow down the game
         }
 				return {pos:roomPos,scale:{x:roomWidth,y:roomHeight}}; //Pos, size room
 			}
