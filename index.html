@@ -92,7 +92,7 @@
 			}*/
       
       function updateCamera(){
-        camera = {x:(-(mousePos.x-(screen.width/2))*mouseWeight)-player.x*(screenScale*roomSize.x),y:(-(mousePos.y-(screen.height/2))*mouseWeight)+player.y*(screenScale*roomSize.y)};
+        camera = {x:(-(mousePos.x-(screen.width/2))*mouseWeight)-player.x*screenScale,y:(-(mousePos.y-(screen.height/2))*mouseWeight)+player.y*screenScale};
         //draw();
       }
 	  function toScreenPos(pos,size){ //pos = position relative to player
