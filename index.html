@@ -37,7 +37,7 @@
       ctx.strokeStyle = stroke;
 			var dungeon = [];
 			const dungeonSize = performanceMode?50:250;
-      var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,size:0.05};
+      var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,sprint:false,crawl:false,size:0.05};
       resize();
 			generateDungeon(dungeonSize,.8);
       player.currentRoom = function(){
@@ -139,9 +139,16 @@
 			} else { //The browser does not support Javascript event binding
 			}
       function walk(){
-        let speeds = [player.speed];
         if(player.up || player.down || player.right || player.left){ //Player is moving
-          let colliders = player.getColliders()
+          let colliders = player.getColliders(),
+          speeds = [player.speed,player.speed/2.0];
+          if(player.crawl){
+            speeds.shift();
+          }else{
+            if(player.sprint){
+              speeds.unshift(player.speed*2.0);
+            }
+          }
           if(player.up) player.y += testSpeeds(colliders.up,true,player.y,speeds);
           if(player.down) player.y -= testSpeeds(colliders.down,false,player.y,speeds);
           if(player.right) player.x += testSpeeds(colliders.right,true,player.x,speeds);
@@ -261,6 +268,15 @@
       function onKeyDown(event) {
         let keyCode = event.keyCode;
         switch (keyCode) {
+          case 16: //shift
+            player.sprint = true;
+            break;
+          case 17: //shift
+            player.crawl = true;
+            break;
+          case 67: //c
+            player.crawl = true;
+            break;
           case 68: //d
             player.right = true;
             break;
@@ -273,12 +289,12 @@
           case 87: //w
             player.up = true;
             break;
-          case 189: //-
-            zoom /= 2;
-            resize();
-            break;
           case 187: //=
             zoom *= 2;
+            resize();
+            break;
+          case 189: //-
+            zoom /= 2;
             resize();
             break;
         }
@@ -287,6 +303,15 @@
       function onKeyUp(event) {
         let keyCode = event.keyCode;
         switch (keyCode) {
+          case 16: //shift
+            player.sprint = false;
+            break;
+          case 17: //shift
+            player.crawl = false;
+            break;
+          case 67: //c
+            player.crawl = false;
+            break;
           case 68: //d
             player.right = false;
             break;
