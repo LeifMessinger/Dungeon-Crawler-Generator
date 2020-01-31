@@ -165,7 +165,7 @@
 				ctx.fillRect(0,0,screen.width,screen.height);
 				for(r in dungeon){
 					for(c in dungeon[r]){
-						if(dungeon[r][c]) drawRoom(makeRoom({x:r-Math.floor(dungeonSize/2),y:c-Math.floor(dungeonSize/2)}),(r == player.currentRoom().x && c == player.currentRoom().y));
+						if(dungeon[r][c]) drawRoom({x:r-Math.floor(dungeonSize/2),y:c-Math.floor(dungeonSize/2)},r == player.currentRoom().x && c == player.currentRoom().y);
 					}
 				}
 				drawCharacter(player);
@@ -234,11 +234,11 @@
 				}*/
 			}
 			function drawRoom(room,current){
-        if(room.pos == null) room = makeRoom(room);
-        if(room.pos.x + room.scale.x >= 0 && room.pos.y + room.scale.y >= 0 && room.pos.x <= screen.width && room.pos.y <= screen.height){
-          if(!performanceMode) ctx.strokeRect(room.pos.x,room.pos.y,room.scale.x,room.scale.y);
+        transform = makeRoom(room);
+        if(transform.pos.x + transform.scale.x >= 0 && transform.pos.y + transform.scale.y >= 0 && transform.pos.x <= screen.width && transform.pos.y <= screen.height){
+          if(!performanceMode) ctx.strokeRect(transform.pos.x,transform.pos.y,transform.scale.x,transform.scale.y);
           if(current) ctx.fillStyle = 'chocolate'; else ctx.fillStyle = 'sienna';
-          ctx.fillRect(room.pos.x,room.pos.y,room.scale.x,room.scale.y);
+          ctx.fillRect(transform.pos.x,transform.pos.y,transform.scale.x,transform.scale.y);
         }
 				//console.log(room);
 			}
@@ -246,7 +246,7 @@
 				let size = screenScale*character.size,
 				pos = makeCharacter({x:character.x,y:character.y},size);//{x:screen.width/2-(size/2)+(camera.x)+player.x,y:screen.height/2-(size/2)+(camera.y)-player.y};
         if(pos.pos.x + size >= 0 && pos.pos.y + size >= 0 && pos.pos.x <= screen.width && pos.pos.y <= screen.height){
-				ctx.fillStyle = 'red';
+				ctx.fillStyle = character.crawl?'rgba(255,0,0,128)':'red';
 				//ctx.fillRect(pos.x,pos.y,size,size);
 				if(!performanceMode) ctx.strokeRect(pos.pos.x,pos.pos.y,size,size);
 				ctx.fillRect(pos.pos.x,pos.pos.y,size,size);
