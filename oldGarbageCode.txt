@@ -1,0 +1,81 @@
+var socket = io.connect();
+var screen = document.getElementById('screen');
+var ctx = screen.getContext("2d");
+var backgroundColor = "red";
+var placement = "";
+var woke = true;
+function draw(){
+  ctx.fillStyle = backgroundColor;
+  ctx.fillRect(0,0,screen.width,screen.height);
+  let subtitleSize = screen.width/30;
+  ctx.font= subtitleSize+"px Comic Sans MS";
+  ctx.fillStyle = "black";
+  ctx.textAlign = "center";
+  ctx.fillText(placement, screen.width/2,subtitleSize);
+  if(woke){
+    ctx.font= subtitleSize + "px Comic Sans MS";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.fillText("Rock", screen.width/2, screen.height/3 - screen.height/6);
+    ctx.fillText("Paper", screen.width/2, 2*screen.height/3 - screen.height/6);
+    ctx.fillText("Scissors", screen.width/2, screen.height - screen.height/6);
+  }
+}
+function resize(){//Resize canvas to window size
+  let win = window,
+    doc = document,
+    docElem = doc.documentElement,
+    body = doc.getElementsByTagName('body')[0],
+    x = win.innerWidth || docElem.clientWidth || body.clientWidth,
+    y = win.innerHeight|| docElem.clientHeight|| body.clientHeight;
+  screen.height = y;
+  screen.width = x;
+  draw();
+};
+resize();
+draw();
+if(window.addEventListener) { //change canvas size when resized
+  window.addEventListener('resize',resize, true); //the true is "useCapture"
+} else { //The browser does not support Javascript event binding
+}
+socket.on('die', function () {
+  socket.close();
+  console.log('disconnied');
+  backgroundColor = "red";
+  draw();
+});
+socket.on('connected', function () {
+  console.log('connied');
+  backgroundColor = "lime";
+  draw();
+});
+socket.on('placement', function (data) {
+  console.log(data);
+  placement = data;
+  draw();
+});
+/*function printMousePos(event) {
+  console.log(
+  "clientX: " + event.clientX +
+  " - clientY: " + event.clientY);
+}*/
+function registerMouseClick(event) {
+  console.log("clientX: " + event.clientX + " - clientY: " + event.clientY);
+  if(woke){
+    if(event.clientX > screen.width/3 && event.clientX < 2*screen.width/3){
+      if(event.clientY > 0 && event.clientY < screen.height/3){
+        socket.emit('choice','rock');
+      }else{
+        if(event.clientY > screen.height/3 && event.clientY < 2*screen.height/3){
+          socket.emit('choice','paper');
+        }else{
+          if(event.clientY > 2*screen.height/3 && event.clientY < screen.height){
+            socket.emit('choice','scissors');
+          }
+        }
+      }
+    }
+  }
+  draw();
+}
+document.addEventListener("click", registerMouseClick);
