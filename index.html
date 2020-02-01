@@ -24,8 +24,9 @@
 		<canvas id="screen" width="400" height="400"></canvas>
 		<!--<yeet id = "yeet">bruh</yeet>-->
 		<br>
+    <script src = "isMobile.js"></script>
 		<script>
-      const performanceMode = false;
+      const performanceMode = isMobile()?true:false;
 			var screen = document.getElementById('screen');
 			var zoom = .125;//{x:.8,y:.8};//How large a 1x1 room is compared to the screen percent
       var screenScale = 1; //Math.min(screen.width,screen.height)
@@ -38,7 +39,7 @@
       const stroke = 'black';
       ctx.strokeStyle = stroke;
 			var dungeon = [];
-			const dungeonSize = performanceMode?50:500;
+			const dungeonSize = performanceMode?50:200;
       var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,sprint:false,crawl:false,size:0.05};
       resize();
 			generateDungeon(dungeonSize,.8);
