@@ -12,4 +12,5 @@ const stroke = 'black';
 ctx.strokeStyle = stroke;
 var dungeon = [];
 const dungeonSize = performanceMode?50:200;
-var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,sprint:false,crawl:false,size:0.05};
+var player = {x:0,y:0/*coordinates are % of a roomnScale/100*/,up:false,down:false,left:false,right:false,speed:.01,sprint:false,crawl:false,size:0.05,toString:function(){let output = '', keys = Object.keys(this);if(keys.length){for(k in keys){let key = keys[k];
+if(typeof this[key] == 'function') continue; output += "" + key + ": " + this[key] + "<br/>";}}return output;}};

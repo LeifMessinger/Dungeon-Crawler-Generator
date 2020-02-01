@@ -13,6 +13,7 @@ function walk(){
     if(player.down) player.y -= testSpeeds(colliders.down,false,player.y,speeds);
     if(player.right) player.x += testSpeeds(colliders.right,true,player.x,speeds);
     if(player.left) player.x -= testSpeeds(colliders.left,false,player.x,speeds);
+    document.getElementById("yeet").innerHTML = player.toString();
     //if(colliders.left != null || colliders.right != null) console.log("BRUH");
   }else{ //Player does not move
 
