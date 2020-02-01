@@ -7,6 +7,7 @@ touch-action: none;
 #yeet {
   position:absolute;
   touch-action: none;
+  font-size: large;
   mix-blend-mode: soft-light;
   color: rgb(255, 255, 255); 
 }
