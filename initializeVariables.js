@@ -6,7 +6,12 @@ const roomSize = {x:1,y:0.5625};//Size of a normal room
 var mousePos = {x:0,y:0};
 var mouseWeight = .2;
 var camera = {x:0,y:0};
-var ctx = screen.getContext("2d",{alpha:false});
+var ctx = screen.getContext("2d",{alpha:false,
+powerPreference:"high-performance",
+depth:false,
+antialias:performanceMode,
+desynchronized: false, //Probs will break stuff
+preserveDrawingBuffer: false});
 const backgroundColor = "dimgray";
 const stroke = 'black';
 ctx.strokeStyle = stroke;
