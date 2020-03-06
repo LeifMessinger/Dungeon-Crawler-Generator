@@ -6,6 +6,7 @@ function registerMouseClick(event) {
 function registerMouseMove(){
   mousePos = {x:event.clientX,y:event.clientY};
   updateCamera();
+  updateCursor();
 }
 function onKeyDown(event) {
   let keyCode = event.keyCode;

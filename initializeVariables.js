@@ -1,5 +1,17 @@
 const performanceMode = isMobile()?true:false;
 var screen = document.getElementById('screen');
+var gui = {
+  element:document.getElementById('gui')
+}
+gui.ctx = gui.element.getContext("2d",{alpha:true,
+  powerPreference:"high-performance",
+  depth:false,
+  antialias:performanceMode,
+  desynchronized: false, //Probs will break stuff
+  preserveDrawingBuffer: false});
+gui.ctx.linewidth = 50;
+gui.ctx.fillStyle = "white";
+gui.ctx.strokeStyle = "#FFFFFF";
 var zoom = .125;//{x:.8,y:.8};//How large a 1x1 room is compared to the screen percent
 var screenScale = 1; //Math.min(screen.width,screen.height)
 const roomSize = {x:1,y:0.5625};//Size of a normal room

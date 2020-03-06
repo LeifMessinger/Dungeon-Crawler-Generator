@@ -47,12 +47,15 @@ function resize(){//Resize canvas to window size
     body = doc.getElementsByTagName('body')[0],
     x = win.innerWidth || docElem.clientWidth || body.clientWidth,
     y = win.innerHeight|| docElem.clientHeight|| body.clientHeight;
-  screen.height = y;
-  screen.width = x;
   screenScale = Math.min(x,y*(1/roomSize.y))*zoom;
-  mouseWeight = .2;
-  ctx.lineWidth = screenScale/100;
+  canvases = [[screen,ctx],[gui.element,gui.ctx]];
+  for(let i in canvases){
+    canvases[i][0].height = y;
+    canvases[i][0].width = x;
+    canvases[i][1].lineWidth = screenScale/100;
+  }
   updateCamera();
+  updateCursor();
 };
 function makeCharacter(pos,size){
   let aspectRatio = screen.width/screen.height,
