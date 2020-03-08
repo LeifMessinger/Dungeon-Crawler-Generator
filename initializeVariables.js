@@ -1,9 +1,7 @@
 const performanceMode = isMobile()?true:false;
 var screen = document.getElementById('screen');
-var gui = {
-  element:document.getElementById('gui')
-}
-gui.ctx = gui.element.getContext("2d",{alpha:true,
+var gui = document.getElementById('gui');
+gui.ctx = gui.getContext("2d",{alpha:true,
   powerPreference:"high-performance",
   depth:false,
   antialias:performanceMode,
@@ -18,12 +16,13 @@ const roomSize = {x:1,y:0.5625};//Size of a normal room
 var mousePos = {x:0,y:0};
 var mouseWeight = .2;
 var camera = {x:0,y:0};
-var ctx = screen.getContext("2d",{alpha:false,
+screen.ctx = screen.getContext("2d",{alpha:false,
 powerPreference:"high-performance",
 depth:false,
 antialias:performanceMode,
 desynchronized: false, //Probs will break stuff
 preserveDrawingBuffer: false});
+var ctx = screen.ctx;
 const backgroundColor = "dimgray";
 const stroke = 'black';
 ctx.strokeStyle = stroke;
