@@ -3,6 +3,7 @@ body, html {
 height:100%;
 overflow: hidden;
 touch-action: none;
+margin: 0px;
 }
 #yeet {
   pointer-events: none;
